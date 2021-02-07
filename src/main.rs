@@ -58,9 +58,8 @@ impl Cart {
 
 impl fmt::Display for Cart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        //for boxed_item in self.items {
         for item in &self.items {
-            //let item = *boxed_item;
+            // We don't need to manually extract items from their Box.
             writeln!(f, "{} ${}", item.get_description(), item.get_price())?;
         }
         Ok(())
