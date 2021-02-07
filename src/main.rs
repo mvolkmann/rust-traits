@@ -1,6 +1,9 @@
-type Price = i64;
+use std::fmt;
+
+type Price = u64;
 
 trait Priced {
+    fn get_description(&self) -> &str;
     fn get_price(&self) -> Price;
 }
 
@@ -15,7 +18,7 @@ struct Cart {
 }
 
 impl Cart {
-    fn add(&mut self, item: impl Priced) {
+    fn add(&mut self, item: impl Priced + 'static) {
         self.items.push(Box::new(item));
     }
 
@@ -26,7 +29,24 @@ impl Cart {
     }
 }
 
+impl fmt::Display for Cart {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut text = "".to_string();
+        for boxed_item in self.items {
+            let item = *boxed_item;
+            text.push_str(&item.get_description());
+            text.push_str(" $");
+            text.push_str(&item.get_price().to_string());
+            text.push('\n');
+        }
+        write!(f, "{}", text)
+    }
+}
+
 impl Priced for Book {
+    fn get_description(&self) -> &str {
+        &self.title
+    }
     fn get_price(&self) -> Price {
         self.price
     }
@@ -39,13 +59,16 @@ struct Food {
 }
 
 impl Priced for Food {
+    fn get_description(&self) -> &str {
+        &self.description
+    }
     fn get_price(&self) -> Price {
         self.price
     }
 }
 
 fn main() {
-    let cart = Cart::default();
+    let mut cart = Cart::default();
 
     let item = Book {
         title: "Svelte and Sapper in Action".to_string(),
@@ -62,5 +85,5 @@ fn main() {
         caloriesPerServing: 140,
         price: 100,
     });
-    println!("subtotal = {}", cart.get_subtotal());
+    println!("subtotal = {}", cart.get_subtotal() as f64 / 100.0);
 }
