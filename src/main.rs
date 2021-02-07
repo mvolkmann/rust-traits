@@ -2,7 +2,7 @@ use std::fmt;
 
 type Price = u64;
 
-trait Priced {
+trait Item {
     fn get_description(&self) -> &str;
     fn get_price(&self) -> Price;
 }
@@ -12,13 +12,40 @@ struct Book {
     title: String,
 }
 
+impl Item for Book {
+    fn get_description(&self) -> &str {
+        &self.title
+    }
+    fn get_price(&self) -> Price {
+        self.price
+    }
+}
+
+struct Food {
+    calories_per_serving: u32,
+    description: String,
+    price: Price,
+}
+
+impl Item for Food {
+    fn get_description(&self) -> &str {
+        &self.description
+    }
+    fn get_price(&self) -> Price {
+        self.price
+    }
+}
+
 #[derive(Default)]
 struct Cart {
-    items: Vec<Box<dyn Priced>>,
+    // A Cart holds any kind of items that implement the Item trait.
+    items: Vec<Box<dyn Item>>,
 }
 
 impl Cart {
-    fn add(&mut self, item: impl Priced + 'static) {
+    // Each Item added to a Cart is guaranteed
+    // to live for the duration of the program.
+    fn add(&mut self, item: impl Item + 'static) {
         self.items.push(Box::new(item));
     }
 
@@ -37,30 +64,6 @@ impl fmt::Display for Cart {
             writeln!(f, "{} ${}", item.get_description(), item.get_price())?;
         }
         Ok(())
-    }
-}
-
-impl Priced for Book {
-    fn get_description(&self) -> &str {
-        &self.title
-    }
-    fn get_price(&self) -> Price {
-        self.price
-    }
-}
-
-struct Food {
-    calories_per_serving: u32,
-    description: String,
-    price: Price,
-}
-
-impl Priced for Food {
-    fn get_description(&self) -> &str {
-        &self.description
-    }
-    fn get_price(&self) -> Price {
-        self.price
     }
 }
 
