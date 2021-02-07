@@ -31,15 +31,12 @@ impl Cart {
 
 impl fmt::Display for Cart {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let mut text = "".to_string();
-        for boxed_item in self.items {
-            let item = *boxed_item;
-            text.push_str(&item.get_description());
-            text.push_str(" $");
-            text.push_str(&item.get_price().to_string());
-            text.push('\n');
+        //for boxed_item in self.items {
+        for item in &self.items {
+            //let item = *boxed_item;
+            writeln!(f, "{} ${}", item.get_description(), item.get_price())?;
         }
-        write!(f, "{}", text)
+        Ok(())
     }
 }
 
@@ -53,7 +50,7 @@ impl Priced for Book {
 }
 
 struct Food {
-    caloriesPerServing: u32,
+    calories_per_serving: u32,
     description: String,
     price: Price,
 }
@@ -77,12 +74,12 @@ fn main() {
     cart.add(item);
     cart.add(Food {
         description: "Snickers bar".to_string(),
-        caloriesPerServing: 229,
+        calories_per_serving: 229,
         price: 75,
     });
     cart.add(Food {
         description: "Coke can".to_string(),
-        caloriesPerServing: 140,
+        calories_per_serving: 140,
         price: 100,
     });
     println!("subtotal = {}", cart.get_subtotal() as f64 / 100.0);
